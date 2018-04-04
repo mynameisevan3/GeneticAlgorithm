@@ -1,9 +1,12 @@
 
 /*=================================================
+              Genetic Algorithm - gaS.c
+              Originally Developed For
     CS 1783 - Artificial Intelligence Programming
          Assignment III - Genetic Algorithms
-           Evan William Gretok - 20161007
-                        ga.c
+                    Refined For
+      ECE 2195 - Parallel Computer Architecture
+           Evan William Gretok - 20180404
   =================================================*/
 
 
