@@ -145,7 +145,8 @@ int main( int argc, char *argv[] ) {
   }
 
   // Open File to Log Results
-  log = fopen( "log.txt", "w+" );
+  log    = fopen( "log.txt",   "w+" );
+  timing = fopen( "gaOut.txt", "w+" );
 
   // Initialize Population of Required Size
   Schedule population[POPULATION_SIZE];  // An array of schedules.
@@ -217,6 +218,7 @@ int main( int argc, char *argv[] ) {
 
   // Close File
   fclose( log );
+  fclose( timing );
 
   // Conclusion Message
   printf( "  This concludes the functionality of this genetic algorithm.\n\n  Have a remarkably pleasant day!  - EWG SDG  \n\n" );
