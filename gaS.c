@@ -8,11 +8,12 @@
 
 
 // Inclusions
+#include <math.h>
+#include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
-#include <math.h>
 #include <string.h>
+#include <time.h>
 #include "datatypes.h"
 
 
@@ -118,10 +119,11 @@ int   minFitness( Schedule* population );
 
 // MAIN /////////////////////////////////////////////////////////////////////////////////
 
-int main ( int argc, char *argv[] ) {
+int main( int argc, char *argv[] ) {
 
   // Create file (pointer) to save raw data to.
-  FILE  *log;
+  FILE *log;
+  FILE *timing;
 
   // Parse Input Parameters
   // Size n, generation iterations maxgen, probability of crossover pc, probability of mutation pm.
@@ -136,7 +138,7 @@ int main ( int argc, char *argv[] ) {
     pm              = atof( argv[4] );
   } else {
     // Warn if nothing was passed.
-    printf( "WARNING - You passed no parameters for generation limit, crossover probability, or mutation probability.\n" );    
+    printf( "WARNING - You passed no parameters for generation limit, crossover probability, or mutation probability.\n" );
   }
 
   // Open File to Log Results
@@ -159,10 +161,11 @@ int main ( int argc, char *argv[] ) {
   printPopulation( population );
 
   // Primary Loop - Score and Develop Population
-  // Can set to terminate when the best fitness is achieved, or just set it to run 
+  // Can set to terminate when the best fitness is achieved, or just set it to run
   // ~10,000 times and use the schedule with the best fitness in the final gen.
   int mainLoopIterator;
-  for( mainLoopIterator = 0; mainLoopIterator < maxgen; mainLoopIterator++ ) {  
+
+  for( mainLoopIterator = 0; mainLoopIterator < maxgen; mainLoopIterator++ ) {
 
     // Select Parents and Clone to Next Generation
     selectAndClone( population );
@@ -178,7 +181,6 @@ int main ( int argc, char *argv[] ) {
 
     // Log Score Data to File
     fprintf( log, "%i,%i,%i,%i\n", mainLoopIterator + 1, minFitness( population ), averageFitness( population ), maxFitness( population ) );
-
 
     // Print Entire Population (Every 100 Generations)
     if( !( mainLoopIterator % 100) ) {
@@ -214,7 +216,7 @@ int main ( int argc, char *argv[] ) {
   fclose( log );
 
   // Conclusion Message
-  printf( "  This concludes the functionality of this genetic algorithm.\n\n  Have a remarkably plesant day!  - EWG\n\n\n\n  SDG  \n\n" );
+  printf( "  This concludes the functionality of this genetic algorithm.\n\n  Have a remarkably pleasant day!  - EWG SDG  \n\n" );
 
   return 0;
 }
@@ -332,18 +334,18 @@ void  scorePopulation( Schedule* population ) {
         if( ( population[i].schedule[k].professorID == population[i].schedule[j].professorID ) && ( population[i].schedule[k].timePeriodID == population[i].schedule[j].timePeriodID ) ) {
           // If detected, subtract 300 points.
           population[i].score -= 300;
-		  // And break this innermost loop to prevent over-punishment.
-		  k = NUM_COURSES;
+	  // And break this innermost loop to prevent over-punishment.
+	  k = NUM_COURSES;
         }
-	  }
+      }
       // Implemented in two separate loops to prevent over-punishment for each.
       for( k = j+1; k < NUM_COURSES; k++ ) {
         // Look for same room at same time.
         if( ( population[i].schedule[k].roomID == population[i].schedule[j].roomID ) && ( population[i].schedule[k].timePeriodID == population[i].schedule[j].timePeriodID ) ) {
           // If detected, subtract 300 points.
           population[i].score -= 300;
-		  // And break this innermost loop to prevent over-punishment.
-		  k = NUM_COURSES;
+	  // And break this innermost loop to prevent over-punishment.
+	  k = NUM_COURSES;
         }
       }
     }
@@ -388,10 +390,8 @@ void  selectAndClone( Schedule* population ) {
 //   data, specifically the swapping of room and time IDs between crossed schedules.
 void  crossover( Schedule* population ) {
   // Calculate how many will be crossed over.
-  float calcCross;
-  calcCross = POPULATION_SIZE * pc;
-  int numCross;
-  numCross = ceil( calcCross );
+  float calcCross = POPULATION_SIZE * pc;
+  int   numCross  = ceil( calcCross );
   // Crossover requires two schedules.  Needs even number.  Address this.
   if( numCross % 2 ) {
     numCross--;
@@ -427,9 +427,8 @@ void  crossover( Schedule* population ) {
         c--;
       } else {
         // Search alreadyCrossed for crossTwo.
-        int searchDupIter;
-        bool foundDup;
-        foundDup = false;
+        int searchDupIter = 0;
+        bool foundDup     = false;
         for( searchDupIter = 0; searchDupIter < lastCrossedIndex; searchDupIter++ ) {
           if( alreadyCrossed[searchDupIter] == crossTwo ) {
             foundDup = true;
@@ -443,33 +442,31 @@ void  crossover( Schedule* population ) {
           alreadyCrossed[lastCrossedIndex++] = crossTwo;
           // And perform crossover on those courses.
           // Pick a random spot in the middle of the schedule.
-          int divisionSpot;
-          divisionSpot = rand( ) % NUM_COURSES;
+          int divisionSpot = rand( ) % NUM_COURSES;
           // Pick whether we're shifting above or below.
-          int shiftAbove;
-          shiftAbove = rand( ) % 2;
+          int shiftAbove   = rand( ) % 2;
           // Transfer the times and rooms above or below that point.
           if( shiftAbove ) {
-            int crossLoopIter;
+            int crossLoopIter = 0;
             for( crossLoopIter = 0; crossLoopIter < divisionSpot; crossLoopIter++ ) {
               int swapper;
-              swapper = population[crossOne].schedule[crossLoopIter].timePeriodID;
+              swapper                                                   = population[crossOne].schedule[crossLoopIter].timePeriodID;
               population[crossOne].schedule[crossLoopIter].timePeriodID = population[crossTwo].schedule[crossLoopIter].timePeriodID;
               population[crossTwo].schedule[crossLoopIter].timePeriodID = swapper;
-              swapper = population[crossOne].schedule[crossLoopIter].roomID;
-              population[crossOne].schedule[crossLoopIter].roomID = population[crossTwo].schedule[crossLoopIter].roomID;
-              population[crossTwo].schedule[crossLoopIter].roomID = swapper;
+              swapper                                                   = population[crossOne].schedule[crossLoopIter].roomID;
+              population[crossOne].schedule[crossLoopIter].roomID       = population[crossTwo].schedule[crossLoopIter].roomID;
+              population[crossTwo].schedule[crossLoopIter].roomID       = swapper;
             }
           } else {
-            int crossLoopIter;
+            int crossLoopIter = divisionSpot;
             for( crossLoopIter = divisionSpot; crossLoopIter < NUM_COURSES; crossLoopIter++ ) {
               int swapper;
-              swapper = population[crossOne].schedule[crossLoopIter].timePeriodID;
+              swapper                                                   = population[crossOne].schedule[crossLoopIter].timePeriodID;
               population[crossOne].schedule[crossLoopIter].timePeriodID = population[crossTwo].schedule[crossLoopIter].timePeriodID;
               population[crossTwo].schedule[crossLoopIter].timePeriodID = swapper;
-              swapper = population[crossOne].schedule[crossLoopIter].roomID;
-              population[crossOne].schedule[crossLoopIter].roomID = population[crossTwo].schedule[crossLoopIter].roomID;
-              population[crossTwo].schedule[crossLoopIter].roomID = swapper;
+              swapper                                                   = population[crossOne].schedule[crossLoopIter].roomID;
+              population[crossOne].schedule[crossLoopIter].roomID       = population[crossTwo].schedule[crossLoopIter].roomID;
+              population[crossTwo].schedule[crossLoopIter].roomID       = swapper;
             }
           }
         }  // END else for crossTwo duplicate check.
@@ -482,40 +479,36 @@ void  crossover( Schedule* population ) {
 //   data, specifically the generation of new randomized room and time IDs.
 void  mutation( Schedule* population ) {
   // Calculate how many will be mutated.
-  float calcMutate;
-  calcMutate = POPULATION_SIZE * pm;
-  int numMutate;
-  numMutate = ceil( calcMutate );
+  float calcMutate     = POPULATION_SIZE * pm;
+  int   numMutate      = ceil( calcMutate );
   // System required for tracking already mutated entries.
   int alreadyMutated[numMutate];  // Array of previously mutated indices.
   int lastMutatedIndex = 0;       // Last index of that array filled.
-  int i;
+  int i                = 0;
   for( i = 0; i < numMutate; i++ ) {
-    alreadyMutated[i] = -1;
+    alreadyMutated[i]  = -1;
   }
   // Mutation loop runs that many times.
-  int m;
+  int m                = 0;
   for( m = 0; m < numMutate; m++ ) {
     // Randomly select which one to mutate.
     int toMutate;
-    toMutate = rand( ) % POPULATION_SIZE;
+    toMutate           = rand( ) % POPULATION_SIZE;
     // Track which have already been mutated.  Don't mutate the same one twice.
     // Search alreadyMutated for this index.
-    int searchDupIter;
-    bool foundDup;
-    foundDup = false;
+    int searchDupIter  = 0;
+    bool foundDup      = false;
     for( searchDupIter = 0; searchDupIter < lastMutatedIndex; searchDupIter++ ) {
       if( alreadyMutated[searchDupIter] == m ) {
-        foundDup = true;
+        foundDup       = true;
       }
     }
     // If this index is not found, add it and perform mutation of one of the room and time IDs.
     if( !foundDup ) {
-      alreadyMutated[lastMutatedIndex] = m;
+      alreadyMutated[lastMutatedIndex]                         = m;
       lastMutatedIndex++;
       // Randomly select one of the courses.
-      int randomCourse;
-      randomCourse = rand( ) % NUM_COURSES;
+      int randomCourse                                         = rand( ) % NUM_COURSES;
       // And perform mutation on that one course.
       population[toMutate].schedule[randomCourse].roomID       = rand( ) % NUM_ROOMS;
       population[toMutate].schedule[randomCourse].timePeriodID = rand( ) % NUM_TIME_PERIODS;
@@ -530,18 +523,19 @@ void  mutation( Schedule* population ) {
 // averageFitness - perform a basic integer calculation of average fitness for
 //   the generational average score display.
 int averageFitness( Schedule* population ) {
-  int runningFitness;
-  runningFitness = 0;
-  int fitnessLoopIter;
+  int runningFitness   = 0;
+  int fitnessLoopIter  = 0;
   for( fitnessLoopIter = 0; fitnessLoopIter < POPULATION_SIZE; fitnessLoopIter++ ) {
-    runningFitness += population[fitnessLoopIter].score;
+    runningFitness    += population[fitnessLoopIter].score;
   }
   return runningFitness / POPULATION_SIZE;
 }
 
 // maxFitness - return the maximum fitness value for this generation's population.
 int maxFitness( Schedule* population ) {
-  int maxIter, maxScore = -999999, maxIndex = -1;
+  int maxIter  = 0;
+  int maxScore = -999999;
+  int maxIndex = -1;
   for( maxIter = 0; maxIter < POPULATION_SIZE; maxIter++ ) {
     if( population[maxIter].score > maxScore ) {
       maxScore = population[maxIter].score;
@@ -553,7 +547,9 @@ int maxFitness( Schedule* population ) {
 
 // minFitness - return the minimum fitness value for this generation's population.
 int minFitness( Schedule* population ) {
-  int minIter, minScore = 1000, minIndex = -1;
+  int minIter  = 0;
+  int minScore = 1000;
+  int minIndex = -1;
   for( minIter = 0; minIter < POPULATION_SIZE; minIter++ ) {
     if( population[minIter].score < minScore ) {
       minScore = population[minIter].score;
@@ -565,4 +561,4 @@ int minFitness( Schedule* population ) {
 
 
 
-// END GA.C  - EWG SDG
+// END gaS.c  - EWG SDG
