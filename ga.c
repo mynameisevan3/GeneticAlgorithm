@@ -5,8 +5,8 @@
            Evan William Gretok - 20161007
                         ga.c
   =================================================*/
-  
-  
+
+
 // Inclusions
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,7 +22,7 @@
 
 // Global Variable Declaration and Initialization
 
-// Sample Code for Additional Definitions 
+// Sample Code for Additional Definitions
 // Provided by Dr. James Bilitski of the University of Pittsburgh at Johnstown
 // Used and Modified with Permission
 
@@ -119,14 +119,14 @@ int   minFitness( Schedule* population );
 // MAIN /////////////////////////////////////////////////////////////////////////////////
 
 int main ( int argc, char *argv[] ) {
-  
+
   // Create file (pointer) to save raw data to.
   FILE  *log;
-  
+
   // Parse Input Parameters
   // Size n, generation iterations maxgen, probability of crossover pc, probability of mutation pm.
   // Ensures parameters were indeed passed.
-  if( argc == 5 ) {  
+  if( argc == 5 ) {
     // Takes n as that is specifically mentioned in the assignment.
     n               = atoi( argv[1] );
     // ...but puts it into POPULATION_SIZE so all of the predefined functions work.
@@ -134,7 +134,7 @@ int main ( int argc, char *argv[] ) {
     maxgen          = atoi( argv[2] );
     pc              = atof( argv[3] );
     pm              = atof( argv[4] );
-  } else {  
+  } else {
     // Warn if nothing was passed.
     printf( "WARNING - You passed no parameters for generation limit, crossover probability, or mutation probability.\n" );    
   }
@@ -145,54 +145,54 @@ int main ( int argc, char *argv[] ) {
   // Initialize Population of Required Size
   Schedule population[POPULATION_SIZE];  // An array of schedules.
   // Don't need a pointer!  We can pass array name as starting address!
-  
+
   // Initialize Random Population
   initializePopulation( population );
-  
+
   // Initial Score (Test, may remove later.)
   scorePopulation( population );
-  
+
   // Log Score Data to File
   fprintf( log, "%i,%i,%i,%i\n", 0, minFitness( population ), averageFitness( population ), maxFitness( population ) );
-  
+
   // Display Initial Population
   printPopulation( population );
-  
+
   // Primary Loop - Score and Develop Population
   // Can set to terminate when the best fitness is achieved, or just set it to run 
   // ~10,000 times and use the schedule with the best fitness in the final gen.
   int mainLoopIterator;
   for( mainLoopIterator = 0; mainLoopIterator < maxgen; mainLoopIterator++ ) {  
-	
+
     // Select Parents and Clone to Next Generation
     selectAndClone( population );
-	
+
     // Perform Crossover
     crossover( population );
-    
+
     // Perform Mutation
     mutation( population );
-    
+
     // Score New Population
     scorePopulation( population );
-	
+
     // Log Score Data to File
     fprintf( log, "%i,%i,%i,%i\n", mainLoopIterator + 1, minFitness( population ), averageFitness( population ), maxFitness( population ) );
-	
-  
+
+
     // Print Entire Population (Every 100 Generations)
     if( !( mainLoopIterator % 100) ) {
       printf( "Generation %i - Printing Current Population - ", mainLoopIterator );
       printPopulation( population );
       printf( "Average Fitness of this Generation is %i\n", averageFitness( population ) );
     }
-    
+
   } // END Primary Loop
-  
+
   // Print Final Population
   printf("\n\n = = =  Final Population As Follows  = = =  \n\n");
   printPopulation( population );
-  
+
   // Select and Display the Best Scoring Member
   int bestIter, bestScore = -999999, bestIndex = -1;
   for( bestIter = 0; bestIter < POPULATION_SIZE; bestIter++ ) {
@@ -209,10 +209,10 @@ int main ( int argc, char *argv[] ) {
     printCourse( &population[bestIndex].schedule[j] );
   }
   printf( " === SCORE %5i ==================================================================================================\n\n\n", population[bestIndex].score );
-  
+
   // Close File
   fclose( log );
-  
+
   // Conclusion Message
   printf( "  This concludes the functionality of this genetic algorithm.\n\n  Have a remarkably plesant day!  - EWG\n\n\n\n  SDG  \n\n" );
 
@@ -258,7 +258,7 @@ void printCourse( Course* cptr ) {
     rooms[cptr->roomID].multimedia,
     dayNames[timePeriods[cptr->timePeriodID].days],
     timePeriods[cptr->timePeriodID].startTime
-  );	   
+  );
 }
 
 // printPopulation - display the entire population of schedules and scores.
@@ -314,7 +314,7 @@ void  scorePopulation( Schedule* population ) {
       } else if( ( population[i].schedule[j].multimedia == 1 ) && ( rooms[ population[i].schedule[j].roomID ].multimedia == 0 ) ) {
         // Subtract 50 from score if it needs one but does not get one.
         population[i].score -= 50;
-      } 
+      }
       // Otherwise, no change to score if it doesn't need it but has it anyway or doesn't get it.
       // For size, 20 if successful, -70 if failed.
       // If the size of the room for this course in this population meets or exceeds its original spec...
@@ -393,7 +393,7 @@ void  crossover( Schedule* population ) {
   int numCross;
   numCross = ceil( calcCross );
   // Crossover requires two schedules.  Needs even number.  Address this.
-  if( numCross % 2 ) { 
+  if( numCross % 2 ) {
     numCross--;
   }
   // System required for tracking already crossed entries.
@@ -435,7 +435,7 @@ void  crossover( Schedule* population ) {
             foundDup = true;
           }
         }
-        // If this index is not found, all checks complete.  Add the two indexes to alreadyCrossed and preform crossover of two full schedules.
+        // If this index is not found, all checks complete.  Add the two indexes to alreadyCrossed and perform crossover of two full schedules.
         if( foundDup ) {
           c--;
         } else {

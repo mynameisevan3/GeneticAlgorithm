@@ -5,8 +5,8 @@
            Evan William Gretok - 10072016
                      datatypes.h
   =================================================*/
-  
-  
+
+
 // Size Definitions
 #define NUM_ROOMS 9
 #define NUM_PROFS 9
