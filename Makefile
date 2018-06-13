@@ -9,13 +9,13 @@ LDFLAGS += -lm
 #########################################################
 # Make All
 
-all:  ga
+all:  gaS #ga
 
 #########################################################
 # Make Genetic Algorithm (Parallel)
 
-ga:  ga.c datatypes.h
-	$(CC) $(CFLAGS) $< $(LDFLAGS) -o $@
+#ga:  ga.c datatypes.h
+#	$(CC) $(CFLAGS) $< $(LDFLAGS) -o $@
 
 #########################################################
 # Make Genetic Algorithm gaS (Serial Baseline)

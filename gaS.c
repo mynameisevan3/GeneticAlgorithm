@@ -21,6 +21,7 @@
 
 
 // Definitions
+typedef int bool;
 #define true 1
 #define false 0
 
@@ -30,70 +31,80 @@
 // Provided by Dr. James Bilitski of the University of Pittsburgh at Johnstown
 // Used and Modified with Permission
 
-typedef enum days {
-  MWF,
-  TH,
-  LAST_DAY
-} days;
+typedef enum days { MWF, TH, LAST_DAY } days;
 
-char* dayNames [LAST_DAY] = { "MWF", "TH" };
+char* dayNames[LAST_DAY] = { "MWF", "TH" };
 
 TimePeriod timePeriods[NUM_TIME_PERIODS] = {
-  {0,MWF,8},{1,MWF,9},{2,MWF,10},{3,MWF,11},{4,MWF,12},{5,MWF,1},{6,MWF,2},{7,MWF,3},{8,TH,8},{9,TH,930},{10,TH,11},{11,TH,1230},{12,TH,2},{13,TH,330}
+  {  0, MWF, 8    },
+  {  1, MWF, 9    },
+  {  2, MWF, 10   },
+  {  3, MWF, 11   },
+  {  4, MWF, 12   },
+  {  5, MWF, 1    },
+  {  6, MWF, 2    },
+  {  7, MWF, 3    },
+  {  8, TH,  8    },
+  {  9, TH,  930  },
+  { 10, TH,  11   },
+  { 11, TH,  1230 },
+  { 12, TH,  2    },
+  { 13, TH,  330  }
 };
 
 Room rooms[NUM_ROOMS] = {
-  {0,"BL134",30,true},
-  {1,"BL138",50,true},
-  {2,"KR224",40,false},
-  {3,"KR124",20,false},
-  {4,"KR206",30,true},
-  {5,"Biddle123",35,false},
-  {6,"Biddle125",40,false},
-  {7,"Biddle205",45,false},
-  {8,"ES100",100,true} };
+  { 0, "BL134",     30, true  },
+  { 1, "BL138",     50, true  },
+  { 2, "KR224",     40, false },
+  { 3, "KR124",     20, false },
+  { 4, "KR206",     30, true  },
+  { 5, "Biddle123", 35, false },
+  { 6, "Biddle125", 40, false },
+  { 7, "Biddle205", 45, false },
+  { 8, "ES100",     100, true }
+};
 
-  Professors professors[NUM_PROFS] = {
-  {0,"Hagerich"},
-  {1,"Bilitski"},
-  {2,"Smigla"},
-  {3,"Im"},
-  {4,"Frederick"},
-  {5,"Thomson"},
-  {6,"Darling"},
-  {7,"Hinderliter"},
-  {8,"Ferencek"}
+Professors professors[NUM_PROFS] = {
+  { 0, "Hagerich"    },
+  { 1, "Bilitski"    },
+  { 2, "Smigla"      },
+  { 3, "Im"          },
+  { 4, "Frederick"   },
+  { 5, "Thomson"     },
+  { 6, "Darling"     },
+  { 7, "Hinderliter" },
+  { 8, "Ferencek"    }
 };
 
 // The definition of a course.  Excludes room and time.  Just a helper to fill in default values.
 Course coursesStub[NUM_COURSES] = {
-  {0,"cs015",0,20,false},
-  {1,"cs456",1,20,true},
-  {2,"cs456",1,20,true},
-  {3,"cs456",1,20,true},
-  {4,"cs1783",1,15,true},
-  {5,"cs455",0,20,true},
-  {6,"cs015",2,35,true},
-  {7,"cs015",3,35,false},
-  {8,"cs015",3,35,false},
-  {9,"cs015",4,35,false},
-  {10,"math001",8,40,false},
-  {11,"math001",8,50,false},
-  {12,"math001",8,60,false},
-  {13,"math002",5,40,false},
-  {14,"math002",5,50,false},
-  {15,"math002",5,60,false},
-  {16,"soc100",6,45,true},
-  {17,"soc100",6,40,true},
-  {18,"soc100",6,35,true},
-  {19,"cs047",1,15,true},
-  {20,"cs047",1,15,true},
-  {21,"psy200",7,30,false},
-  {22,"psy200",7,35,false},
-  {23,"psy200",7,30,false},
-  {24,"cs045",0,20,true},
-  {25,"cs045",0,20,true},
-  {26,"cs015",2,20,true}
+  {  0, "cs015",   0, 20, false },
+  {  1, "cs456",   1, 20, true  },
+  {  2, "cs456",   1, 20, true  },
+  {  3, "cs456",   1, 20, true  },
+  {  4, "cs1783",  1, 15, true  },
+  {  5, "cs455",   0, 20, true  },
+  {  6, "cs015",   2, 35, true  },
+  {  7, "cs015",   3, 35, false },
+  {  8, "cs015",   3, 35, false },
+  {  9, "cs015",   4, 35, false },
+  { 10, "math001", 8, 40, false },
+  { 11, "math001", 8, 50, false },
+  { 12, "math001", 8, 60, false },
+  { 13, "math002", 5, 40, false },
+  { 14, "math002", 5, 50, false },
+  { 15, "math002", 5, 60, false },
+  { 16, "soc100",  6, 45, true  },
+  { 17, "soc100",  6, 40, true  },
+  { 18, "soc100",  6, 35, true  },
+  { 19, "cs047",   1, 15, true  },
+  { 20, "cs047",   1, 15, true  },
+  { 21, "psy200",  7, 30, false },
+  { 22, "psy200",  7, 35, false },
+  { 23, "psy200",  7, 30, false },
+  { 24, "cs045",   0, 20, true  },
+  { 25, "cs045",   0, 20, true  },
+  { 26, "cs015",   2, 20, true  }
 };
 
 int   n               = 0;    // Population Size Input

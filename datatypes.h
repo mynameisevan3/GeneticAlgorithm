@@ -11,6 +11,7 @@
 
 
 // Size Definitions
+typedef int bool;
 #define NUM_ROOMS 9
 #define NUM_PROFS 9
 #define NUM_COURSES 27
