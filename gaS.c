@@ -114,27 +114,26 @@ char* getProfessorName( int pid );
 char* getRoomName( int rid );
 int   getRoomSize( int rid );
 void  printCourse( Course* cptr );
-void  printPopulation( Schedule* population );
-void  initializePopulation( Schedule* population );
-void  scorePopulation( Schedule* population );
-void  selectAndClone( Schedule* population );
-void  crossover( Schedule* population );
-void  mutation( Schedule* population );
-int   averageFitness( Schedule* population );
-int   maxFitness( Schedule* population );
-int   minFitness( Schedule* population );
+void  printPopulation( Schedule* population, int populationSize );
+void  initializePopulation( Schedule* population, int populationSize );
+void  scorePopulation( Schedule* population, int populationSize );
+void  selectAndClone( Schedule* population, int populationSize );
+void  crossover( Schedule* population, int populationSize, float probability );
+void  mutation( Schedule* population, int populationSize, float probability );
+int   averageFitness( Schedule* population, int populationSize );
+int   maxFitness( Schedule* population, int populationSize );
+int   minFitness( Schedule* population, int populationSize );
 
 
 // MAIN /////////////////////////////////////////////////////////////////////////////////
 
 int main( int argc, char *argv[] ) {
 
-  int   display         = 0;    // Enable/Disable Terminal Messages
-  int   maxGen          = 0;    // Maximum Generations to Run
-  int   n               = 0;    // Population Size Input
-  int   POPULATION_SIZE = 0;    // Population Size
-  float pc              = 0.0;  // Probability of Crossover - Pc
-  float pm              = 0.0;  // Probability of Mutation  - Pm
+  int   display        = 0;    // Enable/Disable Terminal Messages
+  int   maxGen         = 0;    // Maximum Generations to Run
+  int   populationSize = 0;    // Population Size
+  float pc             = 0.0;  // Probability of Crossover - Pc
+  float pm             = 0.0;  // Probability of Mutation  - Pm
 
   // Create file (pointer) to save raw data to.
   FILE *log;
@@ -150,12 +149,11 @@ int main( int argc, char *argv[] ) {
     printf( "  Display               - whether or not (1/0) to display status and population members to terminal.\n" );
     return 1;
   } else {
-    n               = atoi( argv[1] );  // Takes n as that is specifically mentioned in the assignment...
-    POPULATION_SIZE = n;                // ...and sets it to POPULATION_SIZE so other items work correctly.
-    maxGen          = atoi( argv[2] );
-    pc              = atof( argv[3] );
-    pm              = atof( argv[4] );
-    display         = atoi( argv[5] );
+    populationSize = atoi( argv[1] );
+    maxGen         = atoi( argv[2] );
+    pc             = atof( argv[3] );
+    pm             = atof( argv[4] );
+    display        = atoi( argv[5] );
   }
 
   // Open File to Log Results
@@ -163,20 +161,23 @@ int main( int argc, char *argv[] ) {
   timing = fopen( "gaOut.txt", "w+" );
 
   // Initialize Population of Required Size
-  Schedule population[POPULATION_SIZE];  // An array of schedules.
+  Schedule population[populationSize];  // An array of schedules.
   // Don't need a pointer!  We can pass array name as starting address!
 
   // Initialize Random Population
-  initializePopulation( population );
+  initializePopulation( population, populationSize );
 
   // Initial Score (Test, may remove later.)
-  scorePopulation( population );
+  scorePopulation( population, populationSize );
 
   // Log Score Data to File
-  fprintf( log, "%i,%i,%i,%i\n", 0, minFitness( population ), averageFitness( population ), maxFitness( population ) );
+  fprintf( log, "%i,%i,%i,%i\n", 0,
+          minFitness( population, populationSize ),
+          averageFitness( population, populationSize ),
+          maxFitness( population, populationSize ) );
 
   // Display Initial Population
-  printPopulation( population );
+  printPopulation( population, populationSize );
 
   // Primary Loop - Score and Develop Population - can set to terminate when the
   //   best fitness is achieved, or just set it to run ~10,000 times and use the
@@ -186,36 +187,39 @@ int main( int argc, char *argv[] ) {
   for( mainLoopIterator = 0; mainLoopIterator < maxGen; mainLoopIterator++ ) {
 
     // Select Parents and Clone to Next Generation
-    selectAndClone( population );
+    selectAndClone( population, populationSize );
 
     // Perform Crossover
-    crossover( population );
+    crossover( population, populationSize, pc );
 
     // Perform Mutation
-    mutation( population );
+    mutation( population, populationSize, pm );
 
     // Score New Population
-    scorePopulation( population );
+    scorePopulation( population, populationSize );
 
     // Log Score Data to File
-    fprintf( log, "%i,%i,%i,%i\n", mainLoopIterator + 1, minFitness( population ), averageFitness( population ), maxFitness( population ) );
+    fprintf( log, "%i,%i,%i,%i\n", mainLoopIterator + 1,
+            minFitness( population, populationSize ),
+            averageFitness( population, populationSize ),
+            maxFitness( population, populationSize ) );
 
     // Print Entire Population (Every 100 Generations)
     if( !( mainLoopIterator % 100) && display ) {
       printf( "Generation %i - Printing Current Population - ", mainLoopIterator );
-      printPopulation( population );
-      printf( "Average Fitness of this Generation is %i\n", averageFitness( population ) );
+      printPopulation( population, populationSize );
+      printf( "Average Fitness of this Generation is %i\n", averageFitness( population, populationSize ) );
     }
 
   } // END Primary Loop
 
   // Print Final Population
   printf( "\n\n = = =  Final Population As Follows  = = =  \n\n" );
-  printPopulation( population );
+  printPopulation( population, populationSize );
 
   // Select and Display the Best Scoring Member
   int bestIter, bestScore = -999999, bestIndex = -1;
-  for( bestIter = 0; bestIter < POPULATION_SIZE; bestIter++ ) {
+  for( bestIter = 0; bestIter < populationSize; bestIter++ ) {
     if( population[bestIter].score > bestScore ) {
       bestScore = population[bestIter].score;
       bestIndex = bestIter;
@@ -287,9 +291,9 @@ void printCourse( Course* cptr ) {
 }
 
 // printPopulation - display the entire population of schedules and scores.
-void printPopulation( Schedule* population ) {
+void printPopulation( Schedule* population, int populationSize ) {
   int i = 0;
-  for( i = 0; i < POPULATION_SIZE; i++ ) {
+  for( i = 0; i < populationSize; i++ ) {
     printf( "\n\n === SCHEDULE %i ==================================================================================================\n", i );
     printf( "CRN\tCourseName\tProf\tCrsSize\tNeedsMultimedia \tRmName\tRmSize\tRmHasMM\t    Days\tTime\n" );
     int j = 0;
@@ -303,11 +307,11 @@ void printPopulation( Schedule* population ) {
 
 // initializePopulation - generate empty population from predefined course
 //   listing as well as the random room and time IDs.
-void initializePopulation( Schedule* population ) {
+void initializePopulation( Schedule* population, int populationSize ) {
   srand( time( NULL ) );
   // Start by just copying the definition data in.
   int i = 0;
-  for( i = 0; i < POPULATION_SIZE; i++ ) {
+  for( i = 0; i < populationSize; i++ ) {
     memcpy( &population[i].schedule, coursesStub, sizeof( coursesStub ) );
 	  // Put in a random room and time.
     int j = 0;
@@ -321,10 +325,10 @@ void initializePopulation( Schedule* population ) {
 
 // scorePopulation - loop through the population scoring each schedule per the
 //   instructions provided.
-void scorePopulation( Schedule* population ) {
+void scorePopulation( Schedule* population, int populationSize ) {
   // Loop through all of the schedules, scoring each.
   int i                      = 0;
-  for( i = 0; i < POPULATION_SIZE; i++ ) {
+  for( i = 0; i < populationSize; i++ ) {
     // Loop through each class.
     // All start at zero in initialization, but zero again for certainty.
     population[i].score        = 0;
@@ -380,21 +384,21 @@ void scorePopulation( Schedule* population ) {
 
 // selectAndClone - perform the selection and assembly process for a new generation of
 //   schedules.
-void selectAndClone( Schedule* population ) {
+void selectAndClone( Schedule* population, int populationSize ) {
   // Make a copy of the current generation so that we can make a new one.
-  Schedule lastGeneration[POPULATION_SIZE];
+  Schedule lastGeneration[populationSize];
   int      i = 0;
-  for( i = 0; i < POPULATION_SIZE; i++ ) {
-    memcpy( &lastGeneration, population, POPULATION_SIZE * sizeof( *population ) );
+  for( i = 0; i < populationSize; i++ ) {
+    memcpy( &lastGeneration, population, populationSize * sizeof( *population ) );
   }
   // Run Selection - clone parents: one by one, twos, whatever.  Here chose one
   //   by one, tournament method.
-  for( i = 0; i < POPULATION_SIZE; i++ ) {
+  for( i = 0; i < populationSize; i++ ) {
     // Randomly select two.
     int competitorOne = 0;
     int competitorTwo = 0;
-    competitorOne     = rand( ) % POPULATION_SIZE;
-    competitorTwo     = rand( ) % POPULATION_SIZE;
+    competitorOne     = rand( ) % populationSize;
+    competitorTwo     = rand( ) % populationSize;
     // Not sure if needed, but make sure they're not the same.
     if( competitorOne == competitorTwo ) {
       i--;
@@ -413,9 +417,9 @@ void selectAndClone( Schedule* population ) {
 // crossover - perform the operations associated with crossover of population
 //   schedule data, specifically the swapping of room and time IDs between
 //   crossed schedules.
-void  crossover( Schedule* population ) {
+void crossover( Schedule* population, int populationSize, float probability ) {
   // Calculate how many will be crossed over.
-  float calcCross      = POPULATION_SIZE * pc;
+  float calcCross      = populationSize * probability;
   int   numCross       = ceil( calcCross );
   // Crossover requires two schedules.  Needs even number.  Address this.
   if( numCross % 2 ) {
@@ -433,8 +437,8 @@ void  crossover( Schedule* population ) {
   int c                = 0;
   for( c = 0; c < crossTimes; c++ ) {
     // Randomly select which two to cross.
-    int crossOne       = rand( ) % POPULATION_SIZE;
-    int crossTwo       = rand( ) % POPULATION_SIZE;
+    int crossOne       = rand( ) % populationSize;
+    int crossTwo       = rand( ) % populationSize;
     // If these are the same, stop, and subtract from loop index to get another shot.
     if( crossOne == crossTwo ) {
       c--;
@@ -503,9 +507,9 @@ void  crossover( Schedule* population ) {
 // mutation - perform the operations associated with mutation of population
 //   schedule data, specifically the generation of new randomized room and
 //   time IDs.
-void mutation( Schedule* population ) {
+void mutation( Schedule* population, int populationSize, float probability ) {
   // Calculate how many will be mutated.
-  float calcMutate     = POPULATION_SIZE * pm;
+  float calcMutate     = populationSize * probability;
   int   numMutate      = ceil( calcMutate );
   // System required for tracking already mutated entries.
   int alreadyMutated[numMutate];  // Array of previously mutated indices.
@@ -519,7 +523,7 @@ void mutation( Schedule* population ) {
   for( m = 0; m < numMutate; m++ ) {
     // Randomly select which one to mutate.
     int toMutate       = 0;
-    toMutate           = rand( ) % POPULATION_SIZE;
+    toMutate           = rand( ) % populationSize;
     // Track which have already been mutated.  Don't mutate the same one twice.
     // Search alreadyMutated for this index.
     int searchDupIter  = 0;
@@ -548,22 +552,22 @@ void mutation( Schedule* population ) {
 
 // averageFitness - perform a basic integer calculation of average fitness for
 //   the generational average score display.
-int averageFitness( Schedule* population ) {
+int averageFitness( Schedule* population, int populationSize ) {
   int runningFitness   = 0;
   int fitnessLoopIter  = 0;
-  for( fitnessLoopIter = 0; fitnessLoopIter < POPULATION_SIZE; fitnessLoopIter++ ) {
+  for( fitnessLoopIter = 0; fitnessLoopIter < populationSize; fitnessLoopIter++ ) {
     runningFitness    += population[fitnessLoopIter].score;
   }
-  return runningFitness / POPULATION_SIZE;
+  return runningFitness / populationSize;
 }
 
 // maxFitness - return the maximum fitness value for this generation's
 //   population.
-int maxFitness( Schedule* population ) {
+int maxFitness( Schedule* population, int populationSize ) {
   int maxIter  = 0;
   int maxScore = -999999;
   int maxIndex = -1;
-  for( maxIter = 0; maxIter < POPULATION_SIZE; maxIter++ ) {
+  for( maxIter = 0; maxIter < populationSize; maxIter++ ) {
     if( population[maxIter].score > maxScore ) {
       maxScore = population[maxIter].score;
       maxIndex = maxIter;
@@ -574,11 +578,11 @@ int maxFitness( Schedule* population ) {
 
 // minFitness - return the minimum fitness value for this generation's
 //   population.
-int minFitness( Schedule* population ) {
+int minFitness( Schedule* population, int populationSize ) {
   int minIter  = 0;
   int minScore = 1000;
   int minIndex = -1;
-  for( minIter = 0; minIter < POPULATION_SIZE; minIter++ ) {
+  for( minIter = 0; minIter < populationSize; minIter++ ) {
     if( population[minIter].score < minScore ) {
       minScore = population[minIter].score;
       minIndex = minIter;
