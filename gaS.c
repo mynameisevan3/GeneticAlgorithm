@@ -4,9 +4,7 @@
               Originally Developed For
     CS 1783 - Artificial Intelligence Programming
          Assignment III - Genetic Algorithms
-                    Refined For
-      ECE 2195 - Parallel Computer Architecture
-           Evan William Gretok - 20180404
+           Evan William Gretok - 20180904
   =================================================*/
 
 
@@ -36,6 +34,7 @@ typedef enum days { MWF, TH, LAST_DAY } days;
 char* dayNames[LAST_DAY] = { "MWF", "TH" };
 
 TimePeriod timePeriods[NUM_TIME_PERIODS] = {
+  // ID Day StartTime
   {  0, MWF, 8    },
   {  1, MWF, 9    },
   {  2, MWF, 10   },
@@ -53,14 +52,14 @@ TimePeriod timePeriods[NUM_TIME_PERIODS] = {
 };
 
 Room rooms[NUM_ROOMS] = {
-  { 0, "BL134",     30, true  },
-  { 1, "BL138",     50, true  },
-  { 2, "KR224",     40, false },
-  { 3, "KR124",     20, false },
-  { 4, "KR206",     30, true  },
-  { 5, "Biddle123", 35, false },
-  { 6, "Biddle125", 40, false },
-  { 7, "Biddle205", 45, false },
+  { 0, "BL134",     30,  true  },
+  { 1, "BL138",     50,  true  },
+  { 2, "KR224",     40,  false },
+  { 3, "KR124",     20,  false },
+  { 4, "KR206",     30,  true  },
+  { 5, "Biddle123", 35,  false },
+  { 6, "Biddle125", 40,  false },
+  { 7, "Biddle205", 45,  false },
   { 8, "ES100",     100, true }
 };
 
@@ -226,7 +225,7 @@ int main( int argc, char *argv[] ) {
     }
   }
   if( display ) {
-    printf( "\n\nThe best scoring schedule developed is Schedule %i with score %i!", bestIndex, population[bestIndex].score );
+    printf( "\n\nThe best scoring schedule developed is schedule %i with score %i.\n", bestIndex, population[bestIndex].score );
     printf( "\n\n === SCHEDULE %i ==================================================================================================\n", bestIndex );
     printf ("CRN\tCourseName\tProf\tCrsSize\tNeedsMultimedia \tRmName\tRmSize\tRmHasMM\t    Days\tTime\n");
     int j = 0;
