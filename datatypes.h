@@ -12,52 +12,52 @@
 
 // Size Definitions
 typedef int bool;
-#define NUM_ROOMS 9
-#define NUM_PROFS 9
-#define NUM_COURSES 27
+#define NUM_UNITS        8
+#define NUM_DATA_SETS    8
+#define NUM_APPS         27
 #define NUM_TIME_PERIODS 14
 
 // TimePeriod Definition
 typedef struct TimePeriod
 {
   int timePeriodID;  // Unique ID for identifying a period.
-  int days;          // An identifier that specifies the days.
-  int startTime;     // Start time of course.
+  int dayNight;      // An identifier that specifies the day/night state of the TimePeriod.
+  int startTime;     // Start time of TimePeriod.
 } TimePeriod;
 
-// Room Definition
-typedef struct Room
+// Compute Unit Definition
+typedef struct ComputeUnit
 {
-  int  roomID;        // Unique ID for identifying a room.
-  char roomName[30];  // Room name and number.
-  int  roomSize;      // Number of students that can fit.
-  bool multimedia;    // Multimedia available in room.
-} Room;
+  int  unitID;           // Unique ID for identifying a compute unit.
+  char unitName[30];     // Compute unit name and number.
+  int  computeUnitSize;  // May represent resources available to a compute unit, such as memory, throughput, etc.
+  bool network;          // Does this compute unit have a sufficient high-bandwidth interconnect?
+} ComputeUnit;
 
-// Professors Definition
-typedef struct Professors
+// DataSet Definition
+typedef struct DataSet
 {
-  int  professorID;        // Unique ID for identifying professors.
-  char professorName[50];  // Name of professor.
-} Professors;
+  int  datasetID;        // Unique ID for identifying data set or source.
+  char datasetName[50];  // Name of data set or source.
+} DataSet;
 
 // Course Definition
-typedef struct Course
+typedef struct Application
 {
-  const int  CRN;             // Unique ID for identifying a course offering.
-  const char courseName[20];  // I.e., CS1783.
-  const int  professorID;     // From Professors structure.
-  const int  courseSize;      // Max number of people enrolled.
-  const bool multimedia;      // Multimedia needed?
-        int  timePeriodID;    // When is the class?
-        int  roomID;          // Where is the class?
+  const int  APN;           // Unique ID for identifying an application.
+  const char appName[20];   // I.e., SobelFilter.
+  const int  datasetID;     // From DataSet structure.
+  const int  appSize;       // Max compute resources needed, relates to computeUnitSize in ComputeUnit structure.
+  const bool network;       // Is a high-bandwidth interconnect needed?
+        int  timePeriodID;  // When is the app to execute?
+        int  unitID;        // To which compute unit is this task assigned?
           // These are the parts that will be determined by the GA!
-} Course;
+} Application;
 
 typedef struct Schedule
 {
-  Course schedule[NUM_COURSES];  // The classes that make up the schedule.
-  int    score;                  // The score of this schedule.
+  Application schedule[NUM_APPS];  // The desired applications that make up the schedule.
+  int    score;                    // The score of this schedule.
 } Schedule;
 
 

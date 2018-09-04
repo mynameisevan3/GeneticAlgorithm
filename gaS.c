@@ -31,28 +31,28 @@ typedef int bool;
 // Provided by Dr. James Bilitski of the University of Pittsburgh at Johnstown
 // Used and Modified with Permission
 
-typedef enum days { MWF, TH, LAST_DAY } days;
+typedef enum dayNight { DAY, NIGHT, LAST_DAY } dayNight;
 
-char* dayNames[LAST_DAY] = { "MWF", "TH" };
+char* dayNightNames[LAST_DAY] = { "Day", "Night" };
 
 TimePeriod timePeriods[NUM_TIME_PERIODS] = {
-  {  0, MWF, 8    },
-  {  1, MWF, 9    },
-  {  2, MWF, 10   },
-  {  3, MWF, 11   },
-  {  4, MWF, 12   },
-  {  5, MWF, 1    },
-  {  6, MWF, 2    },
-  {  7, MWF, 3    },
-  {  8, TH,  8    },
-  {  9, TH,  930  },
-  { 10, TH,  11   },
-  { 11, TH,  1230 },
-  { 12, TH,  2    },
-  { 13, TH,  330  }
+  {  0, DAY,   0  },
+  {  1, DAY,   1  },
+  {  2, DAY,   2  },
+  {  3, DAY,   3  },
+  {  4, DAY,   4  },
+  {  5, DAY,   5  },
+  {  6, DAY,   6  },
+  {  7, NIGHT, 0  },
+  {  8, NIGHT, 1  },
+  {  9, NIGHT, 2  },
+  { 10, NIGHT, 3  },
+  { 11, NIGHT, 4  },
+  { 12, NIGHT, 5  },
+  { 13, NIGHT, 6  }
 };
 
-Room rooms[NUM_ROOMS] = {
+Room rooms[NUM_UNITS] = {
   { 0, "BL134",     30, true  },
   { 1, "BL138",     50, true  },
   { 2, "KR224",     40, false },
@@ -64,7 +64,7 @@ Room rooms[NUM_ROOMS] = {
   { 8, "ES100",     100, true }
 };
 
-Professors professors[NUM_PROFS] = {
+Professors professors[NUM_DATA_SETS] = {
   { 0, "Hagerich"    },
   { 1, "Bilitski"    },
   { 2, "Smigla"      },
@@ -77,7 +77,7 @@ Professors professors[NUM_PROFS] = {
 };
 
 // The definition of a course.  Excludes room and time.  Just a helper to fill in default values.
-Course coursesStub[NUM_COURSES] = {
+Course coursesStub[NUM_APPS] = {
   {  0, "cs015",   0, 20, false, 0, 0 },
   {  1, "cs456",   1, 20, true,  0, 0 },
   {  2, "cs456",   1, 20, true,  0, 0 },
@@ -204,7 +204,7 @@ int main( int argc, char *argv[] ) {
             averageFitness( population, populationSize ),
             maxFitness( population, populationSize ) );
 
-    // Print Entire Population (Every 100 Generations)
+    // Print Entire Population (Every 100 GeneratidayNamesons)
     if( !( mainLoopIterator % 100) && display ) {
       printf( "Generation %i - Printing Current Population - ", mainLoopIterator );
       printPopulation( population, populationSize );
@@ -228,9 +228,9 @@ int main( int argc, char *argv[] ) {
   if( display ) {
     printf( "\n\nThe best scoring schedule developed is Schedule %i with score %i!", bestIndex, population[bestIndex].score );
     printf( "\n\n === SCHEDULE %i ==================================================================================================\n", bestIndex );
-    printf ("CRN\tCourseName\tProf\tCrsSize\tNeedsMultimedia \tRmName\tRmSize\tRmHasMM\t    Days\tTime\n");
+    printf ("CRN\tCourseName\tProf\tCrsSize\tNeedsMultimedia \tRmName\tRmSize\tRmHasMM\t    Day/Night\tTime\n");
     int j = 0;
-    for( j = 0; j < NUM_COURSES; ++j) {
+    for( j = 0; j < NUM_APPS; ++j) {
       printCourse( &population[bestIndex].schedule[j] );
     }
     printf( " === SCORE %5i ==================================================================================================\n\n\n", population[bestIndex].score );
@@ -285,7 +285,7 @@ void printCourse( Course* cptr ) {
     rmName,
     roomSize,
     rooms[ cptr -> roomID ].multimedia,
-    dayNames[ timePeriods[ cptr -> timePeriodID ].days ],
+    dayNightNames[ timePeriods[ cptr -> timePeriodID ].dayNight ],
     timePeriods[ cptr -> timePeriodID ].startTime
   );
 }
@@ -295,9 +295,9 @@ void printPopulation( Schedule* population, int populationSize ) {
   int i = 0;
   for( i = 0; i < populationSize; i++ ) {
     printf( "\n\n === SCHEDULE %i ==================================================================================================\n", i );
-    printf( "CRN\tCourseName\tProf\tCrsSize\tNeedsMultimedia \tRmName\tRmSize\tRmHasMM\t    Days\tTime\n" );
+    printf( "CRN\tCourseName\tProf\tCrsSize\tNeedsMultimedia \tRmName\tRmSize\tRmHasMM\t    Day/Night\tTime\n" );
     int j = 0;
-    for( j = 0; j < NUM_COURSES; j++ ) {
+    for( j = 0; j < NUM_APPS; j++ ) {
       printCourse( &population[i].schedule[j] );
     }
     printf( " === SCORE %5i ==================================================================================================\n", population[i].score );
@@ -315,8 +315,8 @@ void initializePopulation( Schedule* population, int populationSize ) {
     memcpy( &population[i].schedule, coursesStub, sizeof( coursesStub ) );
 	  // Put in a random room and time.
     int j = 0;
-    for( j = 0; j < NUM_COURSES; j++ ) {
-      population[i].schedule[j].roomID       = rand() % NUM_ROOMS;
+    for( j = 0; j < NUM_APPS; j++ ) {
+      population[i].schedule[j].roomID       = rand() % NUM_UNITS;
       population[i].schedule[j].timePeriodID = rand() % NUM_TIME_PERIODS;
       population[i].score                    = 0;
     }
@@ -333,7 +333,7 @@ void scorePopulation( Schedule* population, int populationSize ) {
     // All start at zero in initialization, but zero again for certainty.
     population[i].score        = 0;
     int j                      = 0;
-    for( j = 0; j < NUM_COURSES; j++ ) {
+    for( j = 0; j < NUM_APPS; j++ ) {
       // Check simple things, like multimedia and size.
       // For multimedia, 20 if successful, -50 if failed.
       // If the need for multimedia of this course in this population meets its original spec...
@@ -358,24 +358,24 @@ void scorePopulation( Schedule* population, int populationSize ) {
       }
       // For the more complex shared teachers and times, need to look through classes BELOW this one (credit to Kevin Eshelman for algorithm).
       int k                    = 0;
-      for( k = j+1; k < NUM_COURSES; k++ ) {
+      for( k = j+1; k < NUM_APPS; k++ ) {
         // Look for same teacher at same time.
         if( ( population[i].schedule[k].professorID == population[i].schedule[j].professorID ) && ( population[i].schedule[k].timePeriodID == population[i].schedule[j].timePeriodID ) ) {
           // If detected, subtract 300 points.
           population[i].score -= 300;
 	        // And break this innermost loop to prevent over-punishment.
-	        k                    = NUM_COURSES;
+	        k                    = NUM_APPS;
         }
       }
       // Implemented in two separate loops to prevent over-punishment for each.
-      for( k = ( j + 1 ); k < NUM_COURSES; k++ ) {
+      for( k = ( j + 1 ); k < NUM_APPS; k++ ) {
         // Look for same room at same time.
         if( ( population[i].schedule[k].roomID == population[i].schedule[j].roomID ) &&
             ( population[i].schedule[k].timePeriodID == population[i].schedule[j].timePeriodID ) ) {
           // If detected, subtract 300 points.
           population[i].score -= 300;
 	        // And break this innermost loop to prevent over-punishment.
-	        k                    = NUM_COURSES;
+	        k                    = NUM_APPS;
         }    //
       }      // End Inner Course (K) For
     }        // End Outer Course (J) For
@@ -471,7 +471,7 @@ void crossover( Schedule* population, int populationSize, float probability ) {
           alreadyCrossed[lastCrossedIndex++] = crossTwo;
           // And perform crossover on those courses.
           // Pick a random spot in the middle of the schedule.
-          int divisionSpot     = rand( ) % NUM_COURSES;
+          int divisionSpot     = rand( ) % NUM_APPS;
           // Pick whether we're shifting above or below.
           int shiftAbove       = rand( ) % 2;
           // Transfer the times and rooms above or below that point.
@@ -488,7 +488,7 @@ void crossover( Schedule* population, int populationSize, float probability ) {
             }
           } else {
             int crossLoopIter  = divisionSpot;
-            for( crossLoopIter = divisionSpot; crossLoopIter < NUM_COURSES; crossLoopIter++ ) {
+            for( crossLoopIter = divisionSpot; crossLoopIter < NUM_APPS; crossLoopIter++ ) {
               int swapper;
               swapper                                                   = population[crossOne].schedule[crossLoopIter].timePeriodID;
               population[crossOne].schedule[crossLoopIter].timePeriodID = population[crossTwo].schedule[crossLoopIter].timePeriodID;
@@ -538,9 +538,9 @@ void mutation( Schedule* population, int populationSize, float probability ) {
       alreadyMutated[lastMutatedIndex]                         = m;
       lastMutatedIndex++;
       // Randomly select one of the courses.
-      int randomCourse                                         = rand( ) % NUM_COURSES;
+      int randomCourse                                         = rand( ) % NUM_APPS;
       // And perform mutation on that one course.
-      population[toMutate].schedule[randomCourse].roomID       = rand( ) % NUM_ROOMS;
+      population[toMutate].schedule[randomCourse].roomID       = rand( ) % NUM_UNITS;
       population[toMutate].schedule[randomCourse].timePeriodID = rand( ) % NUM_TIME_PERIODS;
     // Otherwise add nothing to mutated array, perform no mutation, and adjust m so we have room to make another selection.
     } else {
