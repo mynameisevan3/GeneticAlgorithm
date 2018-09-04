@@ -48,9 +48,9 @@ typedef struct Application
   const char appName[20];   // I.e., SobelFilter.
   const int  datasetID;     // From DataSet structure.
   const int  appSize;       // Max compute resources needed, relates to computeUnitSize in ComputeUnit structure.
-  const bool network;       // Is a high-bandwidth interconnect needed?
-        int  timePeriodID;  // When is the app to execute?
-        int  unitID;        // To which compute unit is this task assigned?
+  const bool network;       // Is a high-bandwidth interconnect needed?  Relates to network in ComputeUnit structure
+        int  timePeriodID;  // When is the app to execute?  From TimePeriod structure.
+        int  unitID;        // To which compute unit is this task assigned?  From ComputeUnit structure.
           // These are the parts that will be determined by the GA!
 } Application;
 
