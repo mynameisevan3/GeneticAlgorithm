@@ -3,7 +3,7 @@
 # Makefile for Genetic Algorithm Application            #
 #########################################################
 
-CFLAGS += -std=c99 -Wall -Wextra -Ilib -fopenmp -o2
+CFLAGS += -std=c99 -Wall -Wextra -Ilib -fopenmp -O2
 LDFLAGS += -lm
 
 #########################################################
